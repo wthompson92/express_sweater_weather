@@ -1,36 +1,41 @@
 var express = require('express');
 var router = express.Router();
-var user = require('../../../models').User;
+var crypto = require('crypto')
+var User = require('../../../models').User;
+
+var apiKey = crypto.randomBytes(16).toString('base64')
 
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+
+router.post("/users", function(req, res, next) {
+  User.create({
+    email: req.body.email,
+    password: req.body.password,
+    api_key: apiKey
+  })
+  .then(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(201).send(JSON.stringify(user.api_key));
+  })
+  .catch(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).send({ user });
+  });
 });
 
-function validateUser(user){
-  const validEmail = typeof user.email == 'string' &&
-                      user.email.trim() != '';
-  const validPassword = typeof user.password == 'string' &&
-                      user.email.trim() != '';
-  return validUser && validPassword;
-}
+router.post("/sessions", function(req, res, next) {
+  const email = req.body.email;
+  const password = req.body.password;
 
-
-router.post("/", function(req, res, next) {
-  if (validateUser(req.body))
-  User.create({
-          email: req.body.email,
-          password: req.body.password,
-    })
-    .then(user => {
-      res.setHeader("Content-Type", "application/json");
-      res.status(201).send(JSON.stringify(user));
-    })
-    .catch(user => {
-      res.setHeader("Content-Type", "application/json");
-      res.status(500).send({ user });
-    });
+  User.findOne({ email })
+  .then(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(201).send(JSON.stringify(user.api_key));
+  })
+  .catch(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).send({ user });
+  });
 });
 
 module.exports = router;
