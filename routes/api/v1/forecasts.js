@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var Forecast = require('../../../models').Forecast;
 
 fetch('https://maps.googleapis.com/maps/api/geocode/json?address=denver&key=AIzaSyCmFzPokmvGKpiVJV-zFqqoK74Clzifbwg')
   .then(response => response.body)
