@@ -1,26 +1,22 @@
 var express = require('express');
 var router = express.Router();
-var Session = require('../../../models').User;
+var crypto = require('crypto')
+var User = require('../../../models').User;
 
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.post("/sessions", function(req, res, next) {
+  const email = req.body.email;
+  const password = req.body.password;
 
-router.post("/", function(req, res, next) {
-  Session.create({
-          email: req.body.email,
-          password: req.body.password,
-    })
-    .then(game => {
-      res.setHeader("Content-Type", "application/json");
-      res.status(201).send(JSON.stringify(game));
-    })
-    .catch(error => {
-      res.setHeader("Content-Type", "application/json");
-      res.status(500).send({ error });
-    });
+  User.findOne({ email })
+  .then(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(201).send(JSON.stringify(user.api_key));
+  })
+  .catch(user => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).send({ user });
+  });
 });
 
 module.exports = router;
